@@ -16,8 +16,11 @@ import cs3500.music.util.*;
  */
 public final class MusicModel implements ModelOperations {
   // To hold our notes
-  private List<Note> storedNotes = new ArrayList<Note>();
+  private List<Note> storedNotes;
+  // to hold the instrument
   private Instrument instrument;
+  // to hold the tempo
+  private int tempo;
 
   // Helps figure out the length of this model
   //private int currentLength;
@@ -31,24 +34,22 @@ public final class MusicModel implements ModelOperations {
    * Constructs a MusicModel (storing the default Meter and Track).
    */
   public MusicModel() {
-    this.startEditor();
+    this.storedNotes = new ArrayList<>();
     this.stackTrack = new Stack<List<Note>>();
     this.instrument = Instrument.SINE;
-    //currentLength = 0;
+    this.tempo = 10000;
   }
 
-//  @Override
-//  public void edit(Note x, Note y) {
-//    for (int i = 0; i < Music.size(); i++) {
-//      if (Music.get(i) == x) {
-//        Music.get(i).pitch = y.pitch;
-//        Music.get(i).octave = y.octave;
-//        Music.get(i).dur = y.dur;
-//      } else {
-//        throw new IllegalArgumentException("Note:" + x + "does not exist");
-//      }
-//    }
-//  }
+  @Override
+  public void edit(Note input, Note output) {
+    for (Note note : storedNotes) {
+      if (note.equals(input)) {
+        note = new Note(output.getPitch(), output.getOctave(), output.getDur());
+      } else {
+        throw new IllegalArgumentException("Note: " + input + "does not exist in this model");
+      }
+    }
+  }
 
   @Override
   public List<Note> getNotes() {
@@ -124,6 +125,7 @@ public final class MusicModel implements ModelOperations {
 
     this.storedNotes = thatTrack.getNotes();
     this.instrument = thatTrack.getInstrument();
+    this.tempo = thatTrack.getTempo();
   }
 
   @Override
@@ -145,6 +147,21 @@ public final class MusicModel implements ModelOperations {
   }
 
   @Override
+  public void setTempo(int microsecondsPerBeat) {
+    if (microsecondsPerBeat <= 0) {
+      throw new IllegalArgumentException("Invalid Tempo (in microseconds per beat: "
+              + microsecondsPerBeat);
+    }
+    
+    this.tempo = microsecondsPerBeat;
+  }
+
+  @Override
+  public int getTempo() {
+    return this.tempo;
+  }
+
+  @Override
   public void addNote(Note note) throws IllegalArgumentException {
     Objects.requireNonNull(note);
     Duration noteDur = note.getDur();
@@ -162,11 +179,6 @@ public final class MusicModel implements ModelOperations {
         throw new IllegalArgumentException("Note already exists");
       }
     }
-  }
-
-  @Override
-  public void edit(Note x, Note y) throws IllegalArgumentException {
-
   }
 
   @Override
@@ -254,18 +266,44 @@ public final class MusicModel implements ModelOperations {
    */
   public static final class Builder implements CompositionBuilder<ModelOperations> {
 
+
+    /**
+     * Constructs an actual composition, given the notes that have been added.
+     *
+     * @return The new composition
+     */
     @Override
     public ModelOperations build() {
+
+
 
       ModelOperations model = new MusicModel();
       return null;
     }
 
+    /**
+     * Sets the tempo of the piece.
+     *
+     * @param tempo The speed, in microseconds per beat
+     * @return This builder
+     */
     @Override
     public CompositionBuilder<ModelOperations> setTempo(int tempo) {
+
+
       return null;
     }
 
+    /**
+     * Adds a new note to the piece.
+     *
+     * @param start The start time of the note, in beats
+     * @param end The end time of the note, in beats
+     * @param instrument The instrument number (to be interpreted by MIDI)
+     * @param pitch The pitch (in the range [0, 127], where 60 represents C4, the middle-C on a piano)
+     * @param volume The volume (in the range [0, 127])
+     * @return
+     */
     @Override
     public CompositionBuilder<ModelOperations> addNote(int start, int end, int instrument, int pitch, int volume) {
       return null;
