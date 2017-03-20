@@ -1,0 +1,76 @@
+Bradley Fargo
+
+Hello Friend.
+
+Here is my buggy nonfunctioning model. Good luck.
+
+I developed some useless stuff having to do with Meter, and then my
+Track implementation is super rushed and hacky.
+
+I'll run you through the classes I made.
+-----------------------------------------------------------------------
+-----------------------------------------------------------------------
+ModelOperations:
+The public facing interface for my model. Has all my methods basically.
+///////////////////////////////////////////////////////////////////////
+MusicModel:
+My implementation for this interface.
+Does a bunch of stuff, generate and then read the javadoc.
+-----------------------------------------------------------------------
+BeatState:
+An Enum representing the beatStates (ie onset, rest, sustain).
+-----------------------------------------------------------------------
+Instrument:
+The types of Instruments I want to support
+ (each track has an associated instrument).
+-----------------------------------------------------------------------
+Meter:
+An enumeration of viable time signatures, uses BeatsPerMeasure
+and BeatType. Goes Largely Unusued. I thought it was cool to make.
+Honestly this should probably be a feature of the view
+----------------------------------
+BeatsPerMeasure:
+The allowable BeatsPerMeasure.
+----------------------------------
+BeatType:
+The allowable Types of beats for a Meter(ie quarter, half, whole).
+-----------------------------------------------------------------------
+Note:
+My note class, stores a volume, pitch, octave, and (unused) volume.
+Can have a beatStart recorded, but default is -1.
+-----------------------------------------------------------------------
+NoteDesignation:
+An enum of Natural and Accidental.
+-----------------------------------------------------------------------
+Track:
+A Track is where I stored the hashmap and my route to influence stored
+Notes.
+The public facing interface for a Track. Includes a bunch of delagated
+methods from ModelOperations.
+Generate and read javadoc for specifics.
+///////////////////////////////////////////////////////////////////////
+TrackImp:
+My implementation for a Track, uses a map (hashmap) using int
+values as keys and Lists of Notes as the stored values.
+Methods include adding notes, combining Tracks (passed in), saving and
+reverting, and more.
+-----------------------------------------------------------------------
+Octave:
+I represent the possible Octaves we can store with an enum. The octaves
+are labeled one to ten. There is a maximum of ten octaves
+(corresponding to the range of human hearing).They have a variety of
+methods we can work with.
+-----------------------------------------------------------------------
+Pitch:
+I represent the possible pitches with an enum. C is distinct from C#
+(which I represent with C$D - because the note is between C and D
+- [could also be calledDb]). So the pitches are: A A$B B C C$D D D$E
+E F F$G G G$A. I want to be able to pull out the Hz integer
+representing the tone, but will leave that unimplemented in the model.
+There shall be a toString in the Pitch that prints out the pitch value
+(in sharps) followed by the octave number.
+-----------------------------------------------------------------------
+To record new music in the model, you will be able to add notes one at
+a time.
+
+Good Luck!
