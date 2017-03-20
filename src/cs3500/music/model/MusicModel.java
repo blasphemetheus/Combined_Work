@@ -152,7 +152,7 @@ public final class MusicModel implements ModelOperations {
       throw new IllegalArgumentException("Invalid Tempo (in microseconds per beat: "
               + microsecondsPerBeat);
     }
-    
+
     this.tempo = microsecondsPerBeat;
   }
 
@@ -265,6 +265,13 @@ public final class MusicModel implements ModelOperations {
    * The builder class for my MusicModel.
    */
   public static final class Builder implements CompositionBuilder<ModelOperations> {
+    List<Note> listOfNotes;
+    int tempo;
+
+    private Builder() {
+      listOfNotes = new ArrayList<>();
+      tempo = -1;
+    }
 
 
     /**
@@ -275,10 +282,21 @@ public final class MusicModel implements ModelOperations {
     @Override
     public ModelOperations build() {
 
-
+      Builder builder = new Builder();
 
       ModelOperations model = new MusicModel();
-      return null;
+
+      if (tempo == -1) {
+        throw new IllegalArgumentException("Didn't setTempo silly, so it's set at dummy value -1");
+      }
+
+      model.setTempo(this.tempo);
+
+      for (Note note : listOfNotes) {
+        model.addNote(note);
+      }
+
+      return model;
     }
 
     /**
@@ -289,9 +307,8 @@ public final class MusicModel implements ModelOperations {
      */
     @Override
     public CompositionBuilder<ModelOperations> setTempo(int tempo) {
-
-
-      return null;
+      this.tempo = tempo;
+      return this;
     }
 
     /**
@@ -305,8 +322,10 @@ public final class MusicModel implements ModelOperations {
      * @return
      */
     @Override
-    public CompositionBuilder<ModelOperations> addNote(int start, int end, int instrument, int pitch, int volume) {
-      return null;
+    public CompositionBuilder<ModelOperations> addNote(int start, int end, int instrument,
+                                                       int pitch, int volume) {
+      
+      return this;
     }
     // FILL IN HERE
   }
