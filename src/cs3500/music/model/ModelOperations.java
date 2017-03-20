@@ -13,6 +13,18 @@ import java.util.Map;
  * The public-facing interface for the Model for my Music Editor.
  */
 public interface ModelOperations {
+  
+    /**
+   * Sets the tempo recorded in this model (in microseconds per beat).
+   * (Validates that the 
+   */
+  void setTempo(int microsecondsPerBeat);
+
+  /**
+   * Gets the recorded tempo in the model (in microseconds per beat).
+   * @return the tempo (in microseconds per beat)
+   */
+  int getTempo();
 
   /**
    * Adds the given note to the Model representation starting with the specified beat.
@@ -61,6 +73,7 @@ public interface ModelOperations {
 
   /**
    * Starts the editor (and creates all the data structures) but doesn't fill it with anything.
+   * Sets the tempo to a default of 10000.
    * If called more than once, simply erases everything (except the save)
    * and returns to the initial state.
    */
