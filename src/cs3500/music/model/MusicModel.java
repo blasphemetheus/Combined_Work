@@ -161,24 +161,30 @@ public final class MusicModel implements ModelOperations {
     return this.tempo;
   }
 
-  @Override
+   @Override
   public void addNote(Note note) throws IllegalArgumentException {
     Objects.requireNonNull(note);
     Duration noteDur = note.getDur();
-    // don't have to validate because the Duration is sound (def valid)
 
-    boolean contains = true;
-    for (int i = 0; i < storedNotes.size() ; i++) {
-      if (storedNotes.get(i).equals(note)) {
-        contains = false;
-      }
+    if (this.storedNotes.isEmpty()) {
+      this.storedNotes.add(note);
 
-      if (contains) {
-        storedNotes.add(note);
-      } else {
-        throw new IllegalArgumentException("Note already exists");
+    } else {
+
+
+      boolean contains = true;
+      for (int i = 0; i < this.storedNotes.size(); i++) {
+        if (this.storedNotes.get(i).equals(note)) {
+
+          contains = false;
+        }
       }
-    }
+        if (contains) {
+          this.storedNotes.add(note);
+        } else {
+          throw new IllegalArgumentException("Note already exists");
+        }
+      }
   }
 
   @Override
