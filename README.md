@@ -49,4 +49,20 @@ MusicController- Our Controller for the Music Model, stores model and view and u
 
 KeyboardListener- Keeps three maps, one for key typed, pressed and released. Each map stores a key mapping, which is a pair (keystroke and then code to execute with that stroke). The second part of the pair is a function object (object of a class that implements Runnable - one void method).
 
-Button Listener-- The Button Listener class that allows us to deal with button presses, actions.
+Button Listener- The Button Listener class that allows us to deal with button presses, actions.
+
+
+Other--
+
+MusicEditor- In a MVC fashion renders a view to the client, stores information in the model and allows a controller to direct things (on actions/buttons do things) for the editor. The String[] args passed in allow us to read in files as well as help determine the view output type (ie console = text to console, midi = audio playback, visual = gui interface).
+
+MusicReader- A helper to read music data and construct a music composition from it.
+
+CompositionBuilder- A builder of compositions.  Since we do not know in advance what the name of the main type is for a model, we parameterize this builder interface by an unknown type.
+
+Data-- Note, Octave, Pitch
+
+Note - Notes store int volume and instrument values (that are useful for the MIDI view), as well as the Pitch and Octave enumerations (which are powerful) and a Duration instance. The Duration instance in each note keeps track of where the Duration onset is (the startBeat). Thus every Note knows where in any given Model it will be stored from the moment of it's creation. We don't use a hashtable or any other map to keep track of beats because it seemed a bit complex. List<Note> are easier and more fun to work with.
+
+We never store a tone as an int value, we store all pitch representations at the end of the day as an Octave and a Pitch.
+
