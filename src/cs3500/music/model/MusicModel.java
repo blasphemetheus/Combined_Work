@@ -251,6 +251,20 @@ public final class MusicModel implements ModelOperations {
     }
     return output;
   }
+  
+  @Override
+  public List<Note> getAllStartingAtBeat(int beat) {
+    List<Note> startingAt = this.getAllPlayingAtBeat(beat);
+
+    for (Note note: storedNotes) {
+      Duration dur = note.getDur();
+
+      if (dur.getStartBeat() == beat) {
+        startingAt.add(note);
+      }
+    }
+    return startingAt;
+  }
 
   @Override
   public boolean isEmpty() {
