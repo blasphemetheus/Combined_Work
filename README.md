@@ -43,4 +43,10 @@ ViewFactory- A factory of views, constructs an apporopiate view based on the Str
 
 Controller-- 
 
-ControllerOperations- 
+ControllerOperations- Represents the public facing interface for MusicController, holding the methods to be implemented. 
+
+MusicController- Our Controller for the Music Model, stores model and view and uses keyboard and button listeners.
+
+KeyboardListener- Keeps three maps, one for key typed, pressed and released. Each map stores a key mapping, which is a pair (keystroke and then code to execute with that stroke). The second part of the pair is a function object (object of a class that implements Runnable - one void method).
+
+Button Listener-- The Button Listener class that allows us to deal with button presses, actions.
