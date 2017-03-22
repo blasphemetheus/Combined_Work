@@ -85,6 +85,13 @@ public enum Pitch {
     this.type = type;
   }
 
+  /**
+   * Getter for the order
+   */
+
+  public int getOrder() {
+    return this.order;
+  }
 
   /**
    * Returns the String representation of this Pitch (in form of letter then accidental if exists).
