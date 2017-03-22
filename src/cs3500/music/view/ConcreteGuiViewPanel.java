@@ -99,6 +99,7 @@ public class ConcreteGuiViewPanel extends JPanel {
 
 
   /// added twice because of some import error
+  /// try getting rid of this while still using it above
   public int columns(int i, int max) {
     if (i == max) {
       return max;
