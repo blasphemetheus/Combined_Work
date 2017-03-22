@@ -26,6 +26,7 @@ Model--
 ModelOperations- Public-facing interface holding all the methods for our model implementations. 
 
 MusicModel- Represents the model for an instance of the Music Editor.
+
 Other- All other classess in our model folder are representing data. 
 
 View--
@@ -41,4 +42,5 @@ MidiView- The MidiView stores a copy of the model and initializes the synth and 
 ViewFactory- A factory of views, constructs an apporopiate view based on the String input. The factor takes in only three possible inputs :- "visual", "console" and "midi".
 
 Controller-- 
+
 ControllerOperations- 
