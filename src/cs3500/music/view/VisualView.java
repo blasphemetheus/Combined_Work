@@ -1,92 +1,37 @@
 package cs3500.music.view;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-import java.awt.*;
-
-import javax.swing.*;
-
+import cs3500.music.model.Duration;
 import cs3500.music.model.MusicModel;
+import cs3500.music.model.Note;
+import cs3500.music.model.Octave;
+import cs3500.music.model.Pitch;
 
 /**
- * A skeleton Frame (i.e., a window) in Swing
+ * Created by blewf on 3/18/2017.
  */
-public class VisualView extends javax.swing.JFrame implements ViewOperations {
-  private final JPanel displayPanel; // You may want to refine this to a subtype of JPanel
-  // Fossils from the MVC Class Example
-  private JLabel display;
-  private JButton echoButton, exitButton;
-  private JTextField input;
-  JScrollPane scroller;
-  private Graphics g;
-  private Graphics2D g2;
-  public int WIDTH = 1000;
-  public int HEIGHT = 600;
+public class TextualView implements ViewOperations {
 
 
-
+  // MAKE SURE TO USE getNotes() !!!!!!!!!!!!!!
   /**
-   * Default public constructor, creates new VisualView.
+   * Helper method to configure the number of columns.
+   * If you're on the last octave then print the last possible pitch
+   * otherwise print all possible pitches till the next octave.
+   *
+   * @param i   the octave to be printed
+   * @param max the max value a note can be according to its pitch
+   * @return number of columns
    */
-  public VisualView(MusicModel model) {
-    super("Music Editor");
-//    String first = model.getNotes().get(0).toString();
-
-    // FOSSIL:
-//        setSize(1000, 1000);
-    //    setLocation(200, 200);
-    //    this.setResizable(false);
-    //		this.setMinimumSize(new Dimension(300,300));
-    displayPanel = new ConcreteGuiViewPanel(model);
-    this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-    this.getContentPane().add(displayPanel);
-
-
-    ///Set the size of our Display
-    //displayPanel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-    setBackground(Color.BLACK);
-    //Set location of our Display
-    //displayPanel.setLocation(200, 200);
-    setResizable(true);
-    setMinimumSize(new Dimension(WIDTH, HEIGHT));
-    //setMaximumSize(new Dimension(WIDTH, HEIGHT));
-
-
-
-    //FOSSIL UNTIL PACK() ------------------------------
-    //setLayout(new FlowLayout());
-
-//    display = new JLabel("To be displayed");
-//    //label = new JLabel(new ImageIcon("Jellyfish.JPG"));
-//
-//    this.add(display);
-//
-//    //the textfield
-//    input = new JTextField(10);
-//    this.add(input);
-//
-//    //echobutton
-//    echoButton = new JButton("Echo");
-//    echoButton.setActionCommand("Echo Button");
-//    this.add(echoButton);
-//
-//    //exit button
-//    exitButton = new JButton("Exit");
-//    exitButton.setActionCommand("Exit Button");
-//    this.add(exitButton);
-
-    // END OF FOSSIL ------------------------------------
-    this.pack();
-    setVisible(true);
-  }
-
-
-  public void initialize(){
-    this.setVisible(true);
-  }
-
-  @Override
-  public Dimension getPreferredSize(){
-    return new Dimension(100, 100);
+  public int columns(int i, int max) {
+    if (i == max) {
+      return max;
+    } else {
+      return 11;
+    }
   }
 
   /**
@@ -107,9 +52,148 @@ public class VisualView extends javax.swing.JFrame implements ViewOperations {
    *
    * @return the state of the game
    */
-  String getStringRepresentation(){return "";};
+//  String getState();
+  public String getMusicState(MusicModel model) {
+
+    String musicState = "";
+    if (model.getNotes().isEmpty()) {
+      return musicState;
+    }
+    ///Find end point of song(last note endAt beat)
+    ///to set the required space for beats column
+    ///We need this now to know where to start our first line
+    List<Integer> beats = new ArrayList<>();
+    for (int i = 0; i < model.getNotes().size(); i++) {
+      List<Note> lon = model.getNotes();
+      Duration dur = lon.get(i).getDur();
+      int endBeat = dur.getEndBeat();
+      beats.add(endBeat);
+    }
+    ///Add necessary gaps to first line
+    int beatMax = Collections.max(beats);
+    // bmlength is the number of digits
+    int bmLength = String.valueOf(beatMax).length();
+
+    for (int i = 0; i < bmLength; i++) {
+      musicState += " ";
+    }
+    ///Accumulate pitches and octaves to empty lists to determine min and max values
+    List<Integer> firstline1 = new ArrayList<>();
+    List<Integer> firstline2 = new ArrayList<>();
+    List<Note> firstline = new ArrayList<>();
+    for (int i = 0; i < model.getNotes().size(); i++) {
+      firstline1.add(model.getNotes().get(i).getPitch().getOrder());
+    }
+    for (int i = 0; i < model.getNotes().size(); i++) {
+      firstline2.add(model.getNotes().get(i).getOctave().toInt());
+    }
+    ///Sort out maximums and minimums
+    int pitchMin = Collections.min(firstline1);
+    int pitchMax = Collections.max(firstline1);
+    int octaveMin = Collections.min(firstline2);
+    int octaveMax = Collections.max(firstline2);
+
+    ///make all possible combination between min and max values and add
+    ///to an empty list
+    for (int i = octaveMin; i <= octaveMax; i++) {
+      for (int j = pitchMin; j <= columns(i, pitchMax); j++) {
+        // firstline.add(new Note(new Pitch(j, null), new Octave(i), null));
+        firstline.add(new Note(Pitch.getPint(j), Octave.fromInt(i), null));
+      }
+    }
+
+    ///loop the list with the correct character spaces between them(5)
+    for (int k = 0; k < firstline.size(); k++) {
+      switch (firstline.get(k).toString().length()) {
+        case 2:
+          musicState += "  " + firstline.get(k).toString() + " ";
+          break;
+        case 3:
+          musicState += " " + firstline.get(k).toString() + " ";
+          break;
+        case 4:
+          musicState += " " + firstline.get(k).toString() + "";
+          break;
+        default:
+          musicState += "" + firstline.get(k).toString() + "";
+      }
+    }
+    musicState += "\n";
+
+    ///Now each corresponding line:
+    ///Print each line vertically
+    for (int i = 0; i < beatMax; i++) {
+      musicState += i;
+      ///horizontally
+      ///loop through 5 character spaces
+      for (int j = 0; j < firstline.size(); j++) {
+        ///loop through list for possible X or | or empty
+        for (int k = 0; k < model.getNotes().size(); k++) {
+          if (model.getNotes().get(k).getDur().getStartBeat() == i
+                  && model.getNotes().get(k).getPitch() == firstline.get(j).getPitch()
+                  && model.getNotes().get(k).getOctave() == firstline.get(j).getOctave()) {
+            musicState += "  X  ";
+          } else {
+            if (model.getNotes().get(k).getDur().getEndBeat() == i
+                    && model.getNotes().get(k).getPitch() == firstline.get(j).getPitch()
+                    && model.getNotes().get(k).getOctave() == firstline.get(j).getOctave()) {
+              musicState += "  |  ";
+            } else {
+              if (model.getNotes().get(k).getDur().getStartBeat() < i
+                      && model.getNotes().get(k).getDur().getEndBeat() >= i
+                      && model.getNotes().get(k).getPitch() == firstline.get(j).getPitch()
+                      && model.getNotes().get(k).getOctave() == firstline.get(j).getOctave()) {
+                musicState += "  |  ";
+              }
+            }
+          }
+        }
+        if (!(model.getNotes().contains(firstline.get(j)))) {
+          musicState += "     ";
+        }
+      }
+      musicState += "\n";
+    }
+    ///required new line at the end
+    return musicState += "\n";
+  }
 
 
+//  @Override
+//  public String getState() {
+//    String output = "";
+//    Note lowestNote = this.getLowestNote();
+//    Note highestNote = this.getHighestNote();
+//    List<Note> encountered = new ArrayList<>();
+//    List<Integer> encounteredBeats = new ArrayList<>();
+//
+//    // DEALS WITH FIRST LINE -- SHOULD GENERATE
+//    // if empty, lowestNote and highestNote should return null values
+//    if (this.isEmpty()) {
+//      output.concat(this.firstLine(null, null));
+//    } else {
+//      output.concat(this.firstLine(lowestNote, highestNote));
+//      // if this branch ever returns null lowestnote and null highestNote
+//      // then I screwed up in getLowestNote() and getHighestNote();
+//    }
+//
+//    int totalBeats = this.numBeats();
+//    for (int currentBeat = 0; currentBeat < totalBeats; currentBeat += 1) {
+//      if (this.map.containsKey(currentBeat)) {
+//        for (Note tempNote : this.map.get(currentBeat)) {
+//          encountered.add(tempNote);
+//        }
+//        encountered.addAll(this.map.get(currentBeat));
+//        encounteredBeats.add(currentBeat);
+//      }
+//
+//      // the intro to every line but the first
+//      output.concat(this.getPaddedInt(currentBeat, totalBeats));
+//      output.concat(this.genPerBeat(currentBeat, lowestNote, highestNote, encountered));
+//    }
+//    return output;
+//  }
+//
   @Override
   public void render() {
 
