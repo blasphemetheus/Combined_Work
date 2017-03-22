@@ -1,0 +1,327 @@
+package cs3500.music;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import cs3500.music.model.Duration;
+import cs3500.music.model.ModelOperations;
+import cs3500.music.model.MusicModel;
+import cs3500.music.model.Note;
+import cs3500.music.model.Octave;
+import cs3500.music.model.Pitch;
+import cs3500.music.view.TextualView;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
+/**
+ * My class for testing ModelOperations.
+ */
+public class ModelOperationsTest {
+  private MusicModel model;
+  private Note oneBeatMiddleC;
+  private Note fourBeatMiddleC;
+  //  private Track defTrack;
+  //  private Track nonDefTrack;
+  //  private Meter fourFour;
+  //  private Meter threeFour;
+  //  private Meter oneTwo;
+  //  private Meter threeTwo;
+  private Note oneBeatLowGSharp;
+  private Note eighteenBeatHighA;
+  private ModelOperations schizophrenia;
+  private Note fourBeatLowMiddleC;
+  private ModelOperations longSong;
+  private Note fourBeatMiddleF;
+  private MusicModel monotony;
+  private ModelOperations thousandBeats;
+  private ModelOperations nines;
+  private ModelOperations oneBeatTrack;
+  Duration startAtZeroHoldOne;
+  Duration startAtOneHoldOne;
+  Duration startAtSevenHoldFour;
+  Duration startAtThreeHoldEighteen;
+  Duration holdFour;
+  MusicModel empty = new MusicModel();
+
+  private TextualView Textual = new TextualView();
+
+
+
+  /**
+   * The before, setup thing.
+   * @throws Exception fun
+   */
+  @Before
+  public void setUp() throws Exception {
+
+    startAtZeroHoldOne = new Duration(0, 1);
+    startAtOneHoldOne = new Duration(1, 1);
+    startAtSevenHoldFour = new Duration(7, 4);
+    startAtThreeHoldEighteen = new Duration(3, 18);
+    holdFour = new Duration(0, 4);
+
+    this.model = new MusicModel();
+    this.oneBeatMiddleC = new Note(Pitch.C, Octave.FOUR, startAtZeroHoldOne);
+    this.fourBeatMiddleC = new Note(Pitch.C, Octave.FOUR, holdFour);
+    this.oneBeatLowGSharp = new Note(Pitch.G$A, Octave.TWO, startAtSevenHoldFour);
+    this.eighteenBeatHighA = new Note(Pitch.A, Octave.SEVEN, startAtThreeHoldEighteen);
+    this.fourBeatLowMiddleC = new Note(Pitch.C, Octave.FOUR, holdFour);
+    this.fourBeatMiddleF = new Note(Pitch.F, Octave.FOUR, holdFour);
+
+    this.schizophrenia = new MusicModel();
+    this.createSchizophrenia();
+
+    this.longSong = new MusicModel();
+    this.createLongSong();
+
+    this.monotony = new MusicModel();
+    this.createMonotony();
+
+
+    this.thousandBeats = new MusicModel();
+    this.thousandBeats.add(oneBeatLowGSharp);
+
+    this.nines = new MusicModel();
+    this.nines.add(oneBeatMiddleC);
+
+    this.oneBeatTrack = new MusicModel();
+    this.oneBeatTrack.add(this.oneBeatLowGSharp);
+  }
+
+  /**
+   * Creates the schizophrenia Track.
+   */
+  private void createSchizophrenia() {
+    Duration startAtZeroHoldOne = new Duration(0, 1);
+    Duration startAtOneHoldOne = new Duration(1, 1);
+    Duration startAtSevenHoldFour = new Duration(7, 4);
+    Duration startAtThreeHoldEighteen = new Duration(3, 18);
+
+
+
+    this.schizophrenia.add(fourBeatLowMiddleC);
+    this.schizophrenia.add(oneBeatLowGSharp);
+    this.schizophrenia.add(oneBeatMiddleC);
+    this.schizophrenia.add(fourBeatLowMiddleC);
+    this.schizophrenia.add(eighteenBeatHighA);
+  }
+
+  /**
+   * Creates the longSong Track.
+   */
+  private void createLongSong() {
+    this.longSong.add(eighteenBeatHighA);
+    this.longSong.add(fourBeatLowMiddleC);
+    this.longSong.add(fourBeatMiddleC);
+  }
+
+  /**
+   * Creates the monotony Track.
+   */
+  private void createMonotony() {
+    for (int i = 0; i < 300 ; i += 5) {
+      this.monotony.add(this.fourBeatMiddleC);
+    }
+    for (int i = 0; i < 300 ; i += 4) {
+      this.monotony.add(this.fourBeatMiddleF);
+    }
+  }
+
+  @Test
+  public void getStateEmpty() throws Exception {
+    assertEquals("   " + "A4" + "A#4" + "B4" + "C4" + "C#4" + "S4"
+            + "D#4" + "E4" + "F4" + "F#4" + "G4" + "G#4", Textual.getMusicState(model));
+  }
+
+  @Test
+  public void getStateSchizo() throws Exception {
+    assertEquals("the empty model, default value", Textual.getMusicState(model));
+
+    model.overwriteWith(this.schizophrenia);
+
+    assertEquals("schizophrenia", Textual.getMusicState(model));
+  }
+
+  @Test
+  public void getStateMonotony() throws Exception {
+    assertEquals("the empty model, default value", Textual.getMusicState(model));
+
+    model.overwriteWith(this.monotony);
+
+    assertEquals("monotony", Textual.getMusicState(model));
+  }
+
+  @Test
+  public void getStateLong() {
+    assertEquals("the empty model, default value", Textual.getMusicState(model));
+
+    this.model.overwriteWith(this.longSong);
+    assertEquals("Long model", Textual.getMusicState(model));
+  }
+
+
+  @Test
+  public void getState1000() throws Exception {
+    assertEquals("the empty model, default value", Textual.getMusicState(model));
+
+    model.overwriteWith(this.thousandBeats);
+
+    assertEquals("1000", Textual.getMusicState(model));
+  }
+
+  @Test
+  public void getState999() throws Exception {
+    assertEquals("the empty model, default value", Textual.getMusicState(model));
+
+    model.overwriteWith(this.nines);
+
+    assertEquals("999", Textual.getMusicState(model).substring(0, 8));
+  }
+
+  @Test
+  public void getStateWidth() {
+    assertEquals("the empty model, default value", Textual.getMusicState(model));
+    model.overwriteWith(this.oneBeatTrack);
+
+    assertEquals(100, Textual.getMusicState(model).length());
+  }
+
+  @Test
+  public void addNoteBeginning() throws Exception {
+    assertEquals("empty model, default value", Textual.getMusicState(model));
+
+    model.add(this.oneBeatLowGSharp);
+
+    assertEquals("got a one beat low g sharp", Textual.getMusicState(model));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void addNoteNegativeBeatStart() throws Exception {
+    assertEquals("empty model, default value", Textual.getMusicState(model));
+
+    model.add(this.oneBeatLowGSharp);
+
+    assertEquals("got a one beat low g sharp", Textual.getMusicState(model));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void addNoteOnTop() throws Exception {
+    assertEquals("empty model, default value", Textual.getMusicState(model));
+
+    // Adds a note where there already is one
+    model.add(this.oneBeatLowGSharp);
+    model.add(this.oneBeatLowGSharp);
+  }
+
+  @Test
+  public void addNoteAtEnd() throws Exception {
+    assertEquals("empty model, default value", Textual.getMusicState(model));
+
+    model.add(this.oneBeatLowGSharp);
+
+    assertEquals("empty model except for low gsharp at 100", Textual.getMusicState(model));
+  }
+
+  @Test
+  public void addNoteLongDuration() throws Exception {
+    assertEquals("empty model, default value", Textual.getMusicState(model));
+
+    // Adds a note where there already is one
+    model.add(this.eighteenBeatHighA);
+
+    assertEquals("highA for 18 and that's it", Textual.getMusicState(model));
+  }
+
+  @Test
+  public void removeNoteStartingAt() throws Exception {
+    String monoto = Textual.getMusicState(monotony);
+
+    //this.monotony.removeNoteStartingAt(3, Pitch.C, Octave.EIGHT);
+
+
+    assertNotEquals(monoto, Textual.getMusicState(monotony));
+  }
+  @Test
+  public void testaddNote() {
+    assertEquals(true, empty.getNotes().isEmpty());
+    empty.add(oneBeatMiddleC);
+    assertEquals(oneBeatMiddleC, empty.getNotes().get(0));
+    empty.add(fourBeatMiddleC);
+    assertEquals(oneBeatMiddleC, empty.getNotes().get(0));
+    assertEquals(fourBeatMiddleC, empty.getNotes().get(1));
+  }
+  @Test
+  public void testedit() {
+    assertEquals(true, empty.getNotes().isEmpty());
+    empty.add(oneBeatMiddleC);
+    empty.edit(oneBeatMiddleC, fourBeatMiddleC);
+    assertEquals("C#2", empty.getNotes().get(0).toString());
+    ///We edited(not replaced) one so it should still be there only with different contents
+    assertEquals(oneBeatMiddleC, empty.getNotes().get(0));
+  }
+  @Test
+  public void testremove() {
+    empty.add(oneBeatMiddleC);
+    assertEquals(false, empty.getNotes().isEmpty());
+    empty.removeNote(oneBeatMiddleC);
+    assertEquals(true, empty.getNotes().isEmpty());
+  }
+
+  @Test
+  public void testcombine() {
+    MusicModel another = new MusicModel();
+    another.add(oneBeatMiddleC);
+    another.add(fourBeatMiddleC);
+    //assertEquals(empty.Music.isEmpty(), true);
+
+    empty.mergeWith(another);
+
+    for (int i = 0; i < empty.getNotes().size(); i++) {
+      System.out.print(empty.getNotes().get(i).getDur().getEndBeat() + "\t");
+    }
+    System.out.print("\n");
+    for (int i = 0; i < another.getNotes().size(); i++) {
+      System.out.print(another.getNotes().get(i).getDur().getEndBeat() + "\t");
+    }
+    System.out.print("\n");
+    //assertEquals(empty.Music.get(0), one);
+    //assertEquals(empty.Music.get(1), two);
+    //assertEquals(10, empty.Music.get(1).getDur().endAt);
+    empty.combineConsecutively(another);
+    //assertEquals(empty.Music.get(2).getDur().startAt, 10);
+    //assertEquals(empty.Music.get(2).getDur().endAt, 11);
+    //assertEquals(empty.Music.get(3).getDur().startAt, 10);
+    //assertEquals(empty.Music.get(3).getDur().endAt, 20);
+    ///Second Music piece's first note starts when the first one's last note ends
+    // assertEquals(empty.Music.get(1).getDur().startAt, 0);
+    //assertEquals(empty.Music.get(2).getDur().startAt, empty.Music.get(1).getDur().endAt);
+    for (int i = 0; i < empty.getNotes().size(); i++) {
+      System.out.print(empty.getNotes().get(i).getDur().getEndBeat() + "\t");
+    }
+    System.out.print("\n");
+    for (int i = 0; i < empty.getNotes().size(); i++) {
+      System.out.print(empty.getNotes().get(i).getDur().getStartBeat() + "\t");
+    }
+    System.out.print("\n");
+    for (int i = 0; i < another.getNotes().size(); i++) {
+      System.out.print(another.getNotes().get(i).getDur().getEndBeat() + "\t");
+    }
+    System.out.print("\n");
+  }
+  @Test
+  public void testcombine1() {
+    MusicModel example = new MusicModel();
+    assertEquals(true, empty.getNotes().isEmpty());
+    assertEquals(true, example.getNotes().isEmpty());
+    empty.add(oneBeatMiddleC);
+    empty.add(fourBeatMiddleC);
+    example.add(oneBeatMiddleC);
+    example.add(fourBeatMiddleC);
+    empty.combineConsecutively(example);
+    for (int i = 0; i < empty.getNotes().size(); i++) {
+      System.out.print(empty.getNotes().get(i).getDur().getEndBeat() + "\t");
+    }
+    System.out.print("\n");
+  }
+}
