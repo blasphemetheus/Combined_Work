@@ -181,4 +181,40 @@ public enum Pitch {
         throw new IllegalArgumentException("Invalid Pitch: " + pitch);
     }
   }
+  /**
+   * Get the pitch that has the folling int
+   *
+   * @param x   the pitch int to be extracted
+   * @return the correct pitch coressponding to that number
+   */
+   public static Pitch getPint(int x){
+    switch (x) {
+      case 0:
+        return A$B;
+      case 1:
+        return B;
+      case 2:
+        return C;
+      case 3:
+        return C$D;
+      case 4:
+        return D;
+      case 5:
+        return D$E;
+      case 6:
+        return E;
+      case 7:
+        return F;
+      case 8:
+        return F$G;
+      case 9:
+        return G;
+      case 10:
+        return G$A;
+      case 11:
+        return A;
+      default:
+        throw new IllegalArgumentException("Out of bounds integer: " + x);
+    }
+  }
 }
