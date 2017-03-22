@@ -2,6 +2,7 @@ package cs3500.music.view;
 
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
+import java.util.List;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiChannel;
@@ -9,15 +10,24 @@ import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
+import javax.sound.midi.Sequencer;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Synthesizer;
 
+import cs3500.music.controller.ButtonListener;
+import cs3500.music.controller.KeyboardListener;
+import cs3500.music.model.ModelOperations;
+import cs3500.music.model.Note;
+
 /**
- * Created by blewf on 3/18/2017.
+ * The view that renders as audio (via MIDI) playback.
  */
 public class MidiView implements ViewOperations {
-  private final Synthesizer synth;
-  private final Receiver receiver;
+  ModelOperations model;
+  private Synthesizer synth;
+  private Receiver receiver;
+  private Sequencer sequencer;
+
 
   /**
    * The default constructor for the MidiView.
@@ -27,12 +37,67 @@ public class MidiView implements ViewOperations {
       this.synth = MidiSystem.getSynthesizer();
       this.receiver = synth.getReceiver();
       this.synth.open();
+      this.sequencer = MidiSystem.getSequencer();
     } catch (MidiUnavailableException e) {
+      e.printStackTrace();
+    }
+    //TODO decide if we even want this constructor
+    this.model = null;
+  }
+
+  /**
+   * The default constructor for the MidiView.
+   */
+  public MidiView(ModelOperations model) {
+    try {
+      this.synth = MidiSystem.getSynthesizer();
+      this.receiver = synth.getReceiver();
+      this.synth.open();
+      this.sequencer = MidiSystem.getSequencer();
+    } catch (MidiUnavailableException e) {
+      e.printStackTrace();
+    }
+    this.model = model;
+  }
+
+  /**
+   * Permanently ends playback.
+   */
+  public void endPlayback() {
+    this.receiver.close();
+  }
+
+  /**
+   * Renders the MidiView by playing through a piece of music (at the tempo specified in the model).
+   */
+  @Override
+  public void render() {
+    List<Note> listOfNotes = model.getNotes();
+
+    System.out.println("play song now");
+
+    for (Note note: listOfNotes) {
+      try {
+        this.playNote(note, model.getTempo());
+      } catch (InvalidMidiDataException e) {
+        e.printStackTrace();
+      }
+    }
+
+    int lengthInBeats = model.numBeats();
+    int tempo = model.getTempo();
+    int lengthInMicroSeconds = lengthInBeats * tempo;
+
+    try {
+      Thread.sleep(lengthInMicroSeconds);
+    } catch (InterruptedException e) {
+      System.out.println("Interrupted Yo");
       e.printStackTrace();
     }
   }
 
   /**
+   * Plays a Note as a MIDI thing turned into sound.
    * Relevant classes and methods from the javax.sound.midi library:
    * <ul>
    *  <li>{@link MidiSystem#getSynthesizer()}</li>
@@ -61,71 +126,91 @@ public class MidiView implements ViewOperations {
    * @see <a href="https://en.wikipedia.org/wiki/General_MIDI">
    *   https://en.wikipedia.org/wiki/General_MIDI
    *   </a>
+   *
+   * @param note the given note to be played
+   * @param tempo the tempo in microseconds
+   * @throws InvalidMidiDataException
    */
-  public void playNote() throws InvalidMidiDataException {
-    MidiMessage start = new ShortMessage(ShortMessage.NOTE_ON, 0, 60, 64);
-    MidiMessage stop = new ShortMessage(ShortMessage.NOTE_OFF, 0, 60, 64);
-    this.receiver.send(start, -1);
-    this.receiver.send(stop, this.synth.getMicrosecondPosition() + 200000);
+  protected void playNote(Note note, int tempo) throws InvalidMidiDataException {
+    //    MidiMessage start = new ShortMessage(ShortMessage.NOTE_ON, 0, 60, 64);
+    //    MidiMessage stop = new ShortMessage(ShortMessage.NOTE_OFF, 0, 60, 64);
+    //    this.receiver.send(start, -1);
+    //    this.receiver.send(stop, this.synth.getMicrosecondPosition() + 200000);
 
-    /*
-    The receiver does not "block", i.e. this method
-    immediately moves to the next line and closes the
-    receiver without waiting for the synthesizer to
-    finish playing.
+    // My shortmessage protocol is (all int) (statusByte, channel, pitch, volume)
+    MidiMessage initiateNote = new ShortMessage(ShortMessage.NOTE_ON, note.getInstrument(),
+            note.getPitch(), note.getVolume());
+    MidiMessage endNote = new ShortMessage(ShortMessage.NOTE_OFF, note.getInstrument(),
+            note.getPitch(), note.getVolume());
 
-    You can make the program artificially "wait" using
-    Thread.sleep. A better solution will be forthcoming
-    in the subsequent assignments.
-    */
-    this.receiver.close(); // Only call this once you're done playing *all* notes
+
+    // need to change the beat value the note stores to microseconds (uses tempo)
+    // TODO change to get rid of errors
+    int startTiming = this.convertBeatToMicrosecond(note.getDur().getStartBeat(), tempo);
+    // TODO change this to not be an error (logic too?)
+    int endTiming = (int) this.synth.getMicrosecondPosition() + tempo
+            * (note.getDur().getBeatsHeld() - 1);
+    this.receiver.send(initiateNote, startTiming);
+    this.receiver.send(endNote, endTiming);this.synth.getMicrosecondPosition() + tempo * note.getDur())
   }
 
+  /**
+   * Returns the toString of the receiver.
+   * @return a string representation of the current Midi view reciever object
+   */
+  public String receiverString() {
+    return this.receiver.toString();
+  }
 
+  /**
+   * Plays all the notes that start at the specified beat.
+   * 
+   * @param beat the specified beat
+   */
+  public void playAllStartingAtBeat(int beat) {
+    List<Note> startingAtBeat = model.getAllStartingAtBeat(beat);
+
+    for (Note note: startingAtBeat) {
+      try {
+        playNote(note, model.getTempo());
+      } catch (InvalidMidiDataException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  @Override
+  public void addKeyListener(KeyboardListener kbd) {
+
+  }
+
+  @Override
+  public void addActionListener(ButtonListener buttonListener) {
+  }
 
   ///////////////////////////////////////////////////////////////////////////////////
 
+  /*
+  You must implement either a builder or convenience constructors for your MIDI view,
+  so that by default the view uses the actual MIDI synthesizer, but for testing can be run
+  with your mock instead. If you create a StringBuilder, and pass to the mock-synth,
+  you can then read out the contents of the StringBuilder to confirm that you’ve
+  played all the right notes.
 
-  @Override
-  public void resetFocus() {
-    this.setFocusable(true);
-    this.requestFocus();
-  }
-
-  @Override
-  public void setListeners(ActionListener clicks, KeyListener keys) {
-    this.addKeyListener(keys);
-    this.echoButton.addActionListener(clicks);
-    this.exitButton.addActionListener(clicks);
-  }
-
+  Hint: Remember that you are not testing whether Java’s Receiver, MidiDevice,
+  etc. are working correctly: they do. You are testing whether your program is
+  using them correctly to provide the correct inputs to these classes so that
+  they may play them.
+   */
 
   /**
-   * A method that deals with showing that keyboard yo.
+   * The Buider for my MIDI view so that the view can use the actual MIDI synth for real but then
+   * use my mocks instead.
    */
-  public void showKeyboard() {
-    //shows keyboard
+  public static final class Builder {
+    
+    //TODO
 
-    for (int i = 0; i < 10; i++) {
-      this.buildOctave();
-
-    }
 
   }
-
-  /**
-   *
-   */
-  public void buildNatural() {
-
-  }
-
-  /**
-   * Puts a block not
-   */
-  public void buildAccidental() {
-
-  }
-
-  public void
 }
