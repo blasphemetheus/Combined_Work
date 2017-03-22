@@ -15,3 +15,30 @@ The combined design incorporates Bradley's enumerations and Asad's much more str
 Anyway, once the model was consolidated into a more efficient whole (and the respective tests were adapted over), the rest of the MusicEditor came to be discussed.
 
 The Views (Midi, Textual and Visual), and Controller (complete with Listeners galore) would prove to be the most fun part. Fingers crossed. TO BE CONTINUED ... ... ... .. .. .. . . .  .  .  .
+
+
+Design:
+
+MCV
+
+Model-- 
+
+ModelOperations- Public-facing interface holding all the methods for our model implementations. 
+
+MusicModel- Represents the model for an instance of the Music Editor.
+Other- All other classess in our model folder are representing data. 
+
+View--
+
+ViewOperations- Public-facing interface that holds all the methods that the views need to implement 
+
+TextualView- Represents the state of the model as a string. The techincals on how to represent the model as a string are in the javadoc.
+
+VisualView- Visual representation of the model. This shows the model as a grid that holds all the notes respectively and wether they are starting(onset, BLACK),playing(continuing, GREEN) or ending(absent, BLANK). At the bottom of this grid is piano that represents all pitches and 10 octaves. A red line that can be controlled by the user with the left or right arrow key highlights the beat it is at, on the piano(turning the piano key yellow).  
+
+MidiView- The MidiView stores a copy of the model and initializes the synth and reciever objects in the constructor. the render method starts playback of the model. It should continue until completed and run to the end of the main method. There is no way currently to exit out.
+
+ViewFactory- A factory of views, constructs an apporopiate view based on the String input. The factor takes in only three possible inputs :- "visual", "console" and "midi".
+
+Controller-- 
+ControllerOperations- 
