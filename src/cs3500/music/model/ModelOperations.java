@@ -130,6 +130,14 @@ public interface ModelOperations {
    * @throws IllegalArgumentException if beat points to negative
    */
   List<Note> getAllPlayingAtBeat(int beat);
+  
+    /**
+   * Gets all the Notes starting on the given beat in a List of Notes.
+   *
+   * @param beat the given beat as an int
+   * @return the notes starting on the given beat
+   */
+  List<Note> getAllStartingAtBeat(int beat);
 
   /**
    * Stores thatTrack as a new Track(completely replaces the stored Track).
