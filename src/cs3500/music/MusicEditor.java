@@ -1,5 +1,7 @@
 package cs3500.music;
 
+import sun.util.logging.PlatformLogger;
+
 import cs3500.music.controller.ControllerOperations;
 import cs3500.music.controller.MusicController;
 import cs3500.music.model.ModelOperations;
@@ -41,8 +43,6 @@ public class MusicEditor {
 
     // checks that a valid number of args were passed in
     if (args.length == 0) {
-      // default if no arguments are specified is to show the visual view
-      typeOfView = "visual";
       System.out.println(typeOfView + ":typeofview");
       System.out.println(fileName + "--nothing else on this line right?");
     } else {
@@ -57,11 +57,6 @@ public class MusicEditor {
       }
     }
 
-
-    //
-
-    // Readables contain
-
     // useFile is true if we passed in a file name to be used, else false
     boolean useFile;
     if (fileName.equals("")) {
@@ -70,16 +65,25 @@ public class MusicEditor {
       useFile = true;
     }
 
-    //TODO figure out how to specify this
-    //TODO I think we'll have to change this for each computer/storage location for the files
-    String path = "storage path for txt files";
+    // THIS CODE WILL TURN OFF THE WARNING LOGGER.
+    //    sun.util.logging.PlatformLogger platformLogger = PlatformLogger.getLogger("java.util.prefs");
+    //    platformLogger.setLevel(PlatformLogger.Level.OFF);
+
+
+    // TODO Look at the below comment
+    // ATTENTION, TO RUN SUCCESSFULLY ON YOUR COMPUTER YOU MUST CHANGE THIS PATH
+    // TO REFLECT THE PLACE YOU STORE YOUR TXT FILES
+    // (for Apple products the slashes go the other way too)
+    String path = "C:\\songs\\";
     Readable fileReader = new FileReader(path + fileName);
 
     // if reading from file then make model from file, else make an entirely new model
     if (useFile) {
       model = MusicReader.parseFile(fileReader, new MusicModel.Builder());
+      System.out.println(model.getNotes().toString());
     } else {
       model = new MusicModel();
+      System.out.println(model.getNotes().toString());
     }
 
     view = ViewFactory.create(typeOfView, model);
@@ -91,5 +95,6 @@ public class MusicEditor {
 //    ViewOperations visualView = ViewFactory.create("visual");
 //    ViewOperations midiView = ViewFactory.create("midi");
 //    ViewOperations textView = ViewFactory.create("console");
+    System.out.println("This text should probably not be on the screen");
   }
 }
