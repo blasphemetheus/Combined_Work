@@ -1,11 +1,8 @@
 package cs3500.music.view;
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
-
 import javax.swing.*;
-
 import cs3500.music.model.Duration;
 import cs3500.music.model.MusicModel;
 import cs3500.music.model.Note;
@@ -30,8 +27,6 @@ public class ConcreteGuiViewPanel extends JPanel {
   public java.util.List<Note> firstline = new ArrayList<>();
   public java.util.List<Integer> beats = new ArrayList<>();
   public java.util.List<Note> allNotes = new ArrayList<>();
-
-
 
   @Override
   public void paintComponent(Graphics g){
@@ -61,17 +56,18 @@ public class ConcreteGuiViewPanel extends JPanel {
         allNotes.add(new Note(Pitch.getPint(j), Octave.fromInt(i), null));
       }
     }
-    for(int i = 0; i < allNotes.size(); i++) {
-      if (!(allNotes.get(i).getPitch().toString().contains("#"))) {
-        g.drawRect(i * PIANO_WIDTH,(NOTE_WIDTH/2 + NOTE_WIDTH) + NOTE_WIDTH * firstline
+    for(int k = 0; k < allNotes.size(); k++) {
+      if (!(allNotes.get(k).getPitch().toString().contains("#"))) {
+        g.drawRect(k * PIANO_WIDTH,(NOTE_WIDTH/2 + NOTE_WIDTH) + NOTE_WIDTH * firstline
                         .size(),
-                PIANO_WIDTH * 2,
+                PIANO_WIDTH ,
                 PIANO_HEIGHT);
-      }
-      for (int j = 0; j < allNotes.size(); j++) {
-        if (allNotes.get(j).getPitch().toString().contains("#")) {
-          g.fillRect(j * PIANO_WIDTH + (4 * PIANO_WIDTH), (NOTE_WIDTH/2 + NOTE_WIDTH) +
+      } else {
+        if (allNotes.get(k).getPitch().toString().contains("#")) {
+          g.fillRect(k * PIANO_WIDTH, (NOTE_WIDTH / 2 + NOTE_WIDTH) +
                   NOTE_WIDTH * firstline.size(), PIANO_WIDTH / 2, PIANO_HEIGHT / 2);
+          allNotes.remove(k);
+          k--;
         }
       }
     }
@@ -89,21 +85,35 @@ public class ConcreteGuiViewPanel extends JPanel {
       duration = note.getDur().getEndBeat() - note.getBeatStart();
       g.setColor(Color.GREEN);
       g.fillRect(note.getBeatStart() * NOTE_WIDTH + (2 * NOTE_WIDTH),
-              NOTE_WIDTH + 5 +
-                      NOTE_WIDTH*(model.getHighestNote().getPitch().getOrder() - note.getPitch().getOrder()),
+              makeY(note),
                //(Collections.max(beats) - note.getPitch().getOrder()),
               NOTE_WIDTH * (duration),
               NOTE_HEIGHT * 2);
       g.setColor(Color.BLACK);
       g.fillRect(note.getBeatStart() * NOTE_WIDTH + (2 * NOTE_WIDTH),
               //(Collections.max(beats) - note.getPitch().getOrder()),
-              NOTE_WIDTH + 5 +
-                      NOTE_WIDTH*(model.getHighestNote().getPitch().getOrder() - note.getPitch().getOrder()),
+              makeY(note),
               NOTE_WIDTH,
               NOTE_HEIGHT * 2);
     }
   }
 
+  /**
+   * Sets the Y posns of the notes according to their Notes.
+   *
+   * @param note
+   * @return Y posn for notes
+   */
+  public int makeY(Note note) {
+    int k = 0;
+    for(int i=0;i<firstline.size();i++) {
+      if (note.getPitch().getOrder() == firstline.get(i).getPitch().getOrder()) {
+        k = (3 * NOTE_HEIGHT - NOTE_HEIGHT/2) +
+                NOTE_WIDTH * i;
+      }
+    }
+    return k;
+  }
 
   /**
    * Draw the grid that will hold all the notes. Every change in octave will be indicated by a
@@ -188,13 +198,14 @@ public class ConcreteGuiViewPanel extends JPanel {
 
       }
     }
+
     System.out.print(firstline);
+
     for(int i = 0; i < firstline.size(); i++) {
       g.drawString(firstline.get(i).toString(), 0,
               (2 * NOTE_WIDTH) + NOTE_WIDTH * i);
     }
   }
-
 
   /// added twice because of some import error
   public int columns(int i, int max) {
@@ -204,5 +215,4 @@ public class ConcreteGuiViewPanel extends JPanel {
       return 11;
     }
   }
-
 }
