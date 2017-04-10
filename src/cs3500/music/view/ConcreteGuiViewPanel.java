@@ -15,6 +15,7 @@ import cs3500.music.model.Pitch;
 public class ConcreteGuiViewPanel extends JPanel {
 
   private MusicModel model;
+  public int BEAT;
 
   public ConcreteGuiViewPanel(MusicModel model) {
     this.model = model;
@@ -29,18 +30,19 @@ public class ConcreteGuiViewPanel extends JPanel {
   public java.util.List<Note> allNotes = new ArrayList<>();
 
   @Override
-  public void paintComponent(Graphics g){
+  public void paintComponent(Graphics g) {
     // Handle the default painting
     super.paintComponent(g);
     g.clearRect(0,0,WIDTH,HEIGHT);
     // Look for more documentation about the Graphics class,
     // and methods on it that may be useful
-    makeNoteText(g);
     makeBeatText(g);
     makeRedLine(g);
     makeNotes(g);
     makeNoteGrid(g);
     makePiano(g);
+    updateBeat();
+    makeNoteText(g);
   }
 
   /**
@@ -143,8 +145,17 @@ public class ConcreteGuiViewPanel extends JPanel {
     Graphics2D g2 = (Graphics2D) g;
     g2.setColor(Color.RED);
     g2.setStroke(new BasicStroke(4));
-    g2.drawLine(NOTE_HEIGHT * 4,2 * NOTE_WIDTH - 5 ,NOTE_HEIGHT * 4,firstline.size() *
+    g2.drawLine(NOTE_HEIGHT * 4 + (NOTE_WIDTH * BEAT),2 * NOTE_WIDTH - 5 ,NOTE_HEIGHT * 4 +
+                    (NOTE_WIDTH * BEAT),
+            firstline.size() *
             NOTE_WIDTH + NOTE_WIDTH);
+  }
+
+  public void updateBeat() {
+
+    BEAT++;
+
+    repaint();
   }
 
   /**
@@ -173,41 +184,39 @@ public class ConcreteGuiViewPanel extends JPanel {
    * @param g
    */
   public void makeNoteText(Graphics g) {
-    ///Accumulate pitches and octaves to empty lists to determine min and max values
-    java.util.List<Integer> firstline1 = new ArrayList<>();
-    java.util.List<Integer> firstline2 = new ArrayList<>();
-    for (int i = 0; i < model.getNotes().size(); i++) {
-      firstline1.add(model.getNotes().get(i).getPitch().getOrder());
-    }
-    for (int i = 0; i < model.getNotes().size(); i++) {
-      firstline2.add(model.getNotes().get(i).getOctave().toInt());
-    }
-
-    ///Sort out maximums and minimums
-    int pitchMin = Collections.min(firstline1);
-    int pitchMax = Collections.max(firstline1);
-    int octaveMin = Collections.min(firstline2);
-    int octaveMax = Collections.max(firstline2);
-
-    ///make all possible combination between min and max values and add
-    ///to an empty list
-    for (int i = octaveMin; i <= octaveMax; i++) {
-      for (int j = pitchMin; j <= columns(i, pitchMax); j++) {
-        // firstline.add(new Note(new Pitch(j, null), new Octave(i), null));
-        firstline.add(new Note(Pitch.getPint(j), Octave.fromInt(i), null));
-
+      ///Accumulate pitches and octaves to empty lists to determine min and max values
+      java.util.List<Integer> firstline1 = new ArrayList<>();
+      java.util.List<Integer> firstline2 = new ArrayList<>();
+      for (int i = 0; i < model.getNotes().size(); i++) {
+        firstline1.add(model.getNotes().get(i).getPitch().getOrder());
       }
-    }
+      for (int i = 0; i < model.getNotes().size(); i++) {
+        firstline2.add(model.getNotes().get(i).getOctave().toInt());
+      }
 
-    System.out.print(firstline);
+      ///Sort out maximums and minimums
+      int pitchMin = Collections.min(firstline1);
+      int pitchMax = Collections.max(firstline1);
+      int octaveMin = Collections.min(firstline2);
+      int octaveMax = Collections.max(firstline2);
 
-    for(int i = 0; i < firstline.size(); i++) {
-      g.drawString(firstline.get(i).toString(), 0,
-              (2 * NOTE_WIDTH) + NOTE_WIDTH * i);
-    }
+      ///make all possible combination between min and max values and add
+      ///to an empty list
+      for (int i = octaveMin; i <= octaveMax; i++) {
+        for (int j = pitchMin; j <= columns(i, pitchMax); j++) {
+          // firstline.add(new Note(new Pitch(j, null), new Octave(i), null));
+          firstline.add(new Note(Pitch.getPint(j), Octave.fromInt(i), null));
+        }
+      }
+      System.out.print(firstline);
+      for (int i = 0; i < firstline.size(); i++) {
+        g.drawString(firstline.get(i).toString(), 0,
+                (2 * NOTE_WIDTH) + NOTE_WIDTH * i);
+      }
   }
 
   /// added twice because of some import error
+  /// see MusicModel for javadoc
   public int columns(int i, int max) {
     if (i == max) {
       return max;
