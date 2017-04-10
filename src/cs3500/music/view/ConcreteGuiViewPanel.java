@@ -1,24 +1,27 @@
 package cs3500.music.view;
-import java.awt.*;
+
+import java.awt.Graphics;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.BasicStroke;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import javax.swing.*;
 import cs3500.music.model.Duration;
-import cs3500.music.model.MusicModel;
+import cs3500.music.model.ModelOperations;
 import cs3500.music.model.Note;
 import cs3500.music.model.Octave;
 import cs3500.music.model.Pitch;
 
 /**
- * A dummy view that simply draws a string 
+ * The subclass of JPanel that assists in rendering the visual view.
  */
-public class ConcreteGuiViewPanel extends JPanel {
+public class VisualJPanel extends JPanel {
+  private ModelOperations viewModel;
 
-  private MusicModel model;
-  public int BEAT;
-
-  public ConcreteGuiViewPanel(MusicModel model) {
-    this.model = model;
+  public VisualJPanel(ModelOperations model) {
+    this.viewModel = model;
   }
   public final int NOTE_HEIGHT = 10;
   public final int NOTE_WIDTH = 20;
@@ -28,21 +31,21 @@ public class ConcreteGuiViewPanel extends JPanel {
   public java.util.List<Note> firstline = new ArrayList<>();
   public java.util.List<Integer> beats = new ArrayList<>();
   public java.util.List<Note> allNotes = new ArrayList<>();
+  public int bar;
 
   @Override
-  public void paintComponent(Graphics g) {
+  public void paintComponent(Graphics g){
     // Handle the default painting
     super.paintComponent(g);
     g.clearRect(0,0,WIDTH,HEIGHT);
     // Look for more documentation about the Graphics class,
     // and methods on it that may be useful
+    makeNoteText(g);
     makeBeatText(g);
     makeRedLine(g);
     makeNotes(g);
     makeNoteGrid(g);
     makePiano(g);
-    updateBeat();
-    makeNoteText(g);
   }
 
   /**
@@ -55,7 +58,7 @@ public class ConcreteGuiViewPanel extends JPanel {
     for (int i = 1; i <= 10; i++) {
       for (int j = 1; j <= columns(i, 12); j++) {
         // firstline.add(new Note(new Pitch(j, null), new Octave(i), null));
-        allNotes.add(new Note(Pitch.getPint(j), Octave.fromInt(i), null));
+        allNotes.add(new Note(Pitch.fromInt(j), Octave.fromInt(i), null));
       }
     }
     for(int k = 0; k < allNotes.size(); k++) {
@@ -83,12 +86,12 @@ public class ConcreteGuiViewPanel extends JPanel {
    */
   public void makeNotes(Graphics g) {
     int duration;
-    for (Note note : model.getNotes()) {
+    for (Note note : viewModel.getNotes()) {
       duration = note.getDur().getEndBeat() - note.getBeatStart();
       g.setColor(Color.GREEN);
       g.fillRect(note.getBeatStart() * NOTE_WIDTH + (2 * NOTE_WIDTH),
               makeY(note),
-               //(Collections.max(beats) - note.getPitch().getOrder()),
+              //(Collections.max(beats) - note.getPitch().getOrder()),
               NOTE_WIDTH * (duration),
               NOTE_HEIGHT * 2);
       g.setColor(Color.BLACK);
@@ -109,7 +112,7 @@ public class ConcreteGuiViewPanel extends JPanel {
   public int makeY(Note note) {
     int k = 0;
     for(int i=0;i<firstline.size();i++) {
-      if (note.getPitch().getOrder() == firstline.get(i).getPitch().getOrder()) {
+      if (note.getPitch().getOrderVal() == firstline.get(i).getPitch().getOrderVal()) {
         k = (3 * NOTE_HEIGHT - NOTE_HEIGHT/2) +
                 NOTE_WIDTH * i;
       }
@@ -145,17 +148,8 @@ public class ConcreteGuiViewPanel extends JPanel {
     Graphics2D g2 = (Graphics2D) g;
     g2.setColor(Color.RED);
     g2.setStroke(new BasicStroke(4));
-    g2.drawLine(NOTE_HEIGHT * 4 + (NOTE_WIDTH * BEAT),2 * NOTE_WIDTH - 5 ,NOTE_HEIGHT * 4 +
-                    (NOTE_WIDTH * BEAT),
-            firstline.size() *
+    g2.drawLine(NOTE_HEIGHT * 4,2 * NOTE_WIDTH - 5 ,NOTE_HEIGHT * 4,firstline.size() *
             NOTE_WIDTH + NOTE_WIDTH);
-  }
-
-  public void updateBeat() {
-
-    BEAT++;
-
-    repaint();
   }
 
   /**
@@ -164,8 +158,8 @@ public class ConcreteGuiViewPanel extends JPanel {
    */
   public void makeBeatText(Graphics g) {
     ///Extract the end beats of our notes and store them
-    for (int i = 0; i < model.getNotes().size(); i++) {
-      java.util.List<Note> lon = model.getNotes();
+    for (int i = 0; i < viewModel.getNotes().size(); i++) {
+      java.util.List<Note> lon = viewModel.getNotes();
       Duration dur = lon.get(i).getDur();
       int endBeat = dur.getEndBeat();
       beats.add(endBeat);
@@ -184,44 +178,79 @@ public class ConcreteGuiViewPanel extends JPanel {
    * @param g
    */
   public void makeNoteText(Graphics g) {
-      ///Accumulate pitches and octaves to empty lists to determine min and max values
-      java.util.List<Integer> firstline1 = new ArrayList<>();
-      java.util.List<Integer> firstline2 = new ArrayList<>();
-      for (int i = 0; i < model.getNotes().size(); i++) {
-        firstline1.add(model.getNotes().get(i).getPitch().getOrder());
-      }
-      for (int i = 0; i < model.getNotes().size(); i++) {
-        firstline2.add(model.getNotes().get(i).getOctave().toInt());
-      }
+    ///Accumulate pitches and octaves to empty lists to determine min and max values
+    java.util.List<Integer> firstline1 = new ArrayList<>();
+    java.util.List<Integer> firstline2 = new ArrayList<>();
+    for (int i = 0; i < viewModel.getNotes().size(); i++) {
+      firstline1.add(viewModel.getNotes().get(i).getPitch().getOrderVal());
+    }
+    for (int i = 0; i < viewModel.getNotes().size(); i++) {
+      firstline2.add(viewModel.getNotes().get(i).getOctave().toInt());
+    }
 
-      ///Sort out maximums and minimums
-      int pitchMin = Collections.min(firstline1);
-      int pitchMax = Collections.max(firstline1);
-      int octaveMin = Collections.min(firstline2);
-      int octaveMax = Collections.max(firstline2);
+    ///Sort out maximums and minimums
+    int pitchMin = Collections.min(firstline1);
+    int pitchMax = Collections.max(firstline1);
+    int octaveMin = Collections.min(firstline2);
+    int octaveMax = Collections.max(firstline2);
 
-      ///make all possible combination between min and max values and add
-      ///to an empty list
-      for (int i = octaveMin; i <= octaveMax; i++) {
-        for (int j = pitchMin; j <= columns(i, pitchMax); j++) {
-          // firstline.add(new Note(new Pitch(j, null), new Octave(i), null));
-          firstline.add(new Note(Pitch.getPint(j), Octave.fromInt(i), null));
-        }
+    ///make all possible combination between min and max values and add
+    ///to an empty list
+    for (int i = octaveMin; i <= octaveMax; i++) {
+      for (int j = pitchMin; j <= columns(i, pitchMax); j++) {
+        // firstline.add(new Note(new Pitch(j, null), new Octave(i), null));
+        firstline.add(new Note(Pitch.fromInt(j), Octave.fromInt(i), null));
+
       }
-      System.out.print(firstline);
-      for (int i = 0; i < firstline.size(); i++) {
-        g.drawString(firstline.get(i).toString(), 0,
-                (2 * NOTE_WIDTH) + NOTE_WIDTH * i);
-      }
+    }
+
+    System.out.print(firstline);
+
+    for(int i = 0; i < firstline.size(); i++) {
+      g.drawString(firstline.get(i).toString(), 0,
+              (2 * NOTE_WIDTH) + NOTE_WIDTH * i);
+    }
   }
 
-  /// added twice because of some import error
-  /// see MusicModel for javadoc
+  /**
+   * /// added twice because of some import error.
+   *
+   * @param i   thing
+   * @param max thing
+   * @return thing
+   */
   public int columns(int i, int max) {
     if (i == max) {
       return max;
     } else {
       return 11;
     }
+  }
+
+
+  /**
+   * Moves to right.
+   */
+  public void moveRight() {
+    //    this.bar += NOTE_WIDTH;
+    //
+    //    Graphics2D g2 = (Graphics2D) g;
+    //    g2.setColor(Color.WHITE);
+    //    g2.setStroke(new BasicStroke(4));
+    //    g2.drawLine(NOTE_HEIGHT * 4 + bar, 2 * NOTE_WIDTH - 5, NOTE_HEIGHT * 4, firstline.size() *
+    //            NOTE_WIDTH + NOTE_WIDTH);
+    //    g2.drawLine(NOTE_HEIGHT * 4 + bar, 2 * NOTE_WIDTH - 5, NOTE_HEIGHT * 4, firstline.size() *
+    //            NOTE_WIDTH + NOTE_WIDTH);
+  }
+
+  /**
+   * Moves to left.
+   */
+  public void moveLeft() {
+    this.bar += NOTE_WIDTH;
+  }
+
+  public void updateRedLine() {
+    System.out.println("Updates red line in visualJPanel");
   }
 }
