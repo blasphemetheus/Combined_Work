@@ -36,52 +36,19 @@ public class VisualView extends javax.swing.JFrame implements ViewOperations {
     container.setPreferredSize(new Dimension(WIDTH, HEIGHT/2));
     container.setLayout(null);
 
-
-    // FOSSIL:
-//        setSize(1000, 1000);
-    //    setLocation(200, 200);
-    //    this.setResizable(false);
-    //		this.setMinimumSize(new Dimension(300,300));
     displayPanel = new ConcreteGuiViewPanel(model);
     this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
     this.getContentPane().add(container);
     this.getContentPane().add(displayPanel);
-
 
     ///Set the size of our Display
     //displayPanel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
     setBackground(Color.BLACK);
     //Set location of our Display
     //displayPanel.setLocation(200, 200);
-    setResizable(false);
+    setFocusable(true);
+    setResizable(true);
     setMinimumSize(new Dimension(WIDTH, HEIGHT));
-    //setMaximumSize(new Dimension(WIDTH, HEIGHT));
-
-
-
-
-    //FOSSIL UNTIL PACK() ------------------------------
-    //setLayout(new FlowLayout());
-
-//    display = new JLabel("To be displayed");
-//    //label = new JLabel(new ImageIcon("Jellyfish.JPG"));
-//
-//    this.add(display);
-//
-//    //the textfield
-//    input = new JTextField(10);
-//    this.add(input);
-//
-//    //echobutton
-//    echoButton = new JButton("Echo");
-//    echoButton.setActionCommand("Echo Button");
-//    this.add(echoButton);
-//
-//    //exit button
-//    exitButton = new JButton("Exit");
-//    exitButton.setActionCommand("Exit Button");
-//    this.add(exitButton);
-
     // END OF FOSSIL ------------------------------------
     this.pack();
     setVisible(true);
@@ -120,6 +87,6 @@ public class VisualView extends javax.swing.JFrame implements ViewOperations {
 
   @Override
   public void render() {
-
   }
 }
+
